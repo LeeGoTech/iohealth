@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, empty_catches
 
 import 'dart:async';
 // import 'dart:ffi';
@@ -75,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          body: Container(
+          body: SizedBox(
               width: double.infinity,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -137,24 +137,10 @@ class _NavBarState extends State<NavBar> {
           title: Image.asset('images/IoHealth Logo.png',
               fit: BoxFit.contain, width: 50),
           centerTitle: true,
-          // leading: IconButton(
-          //   icon: const Icon(Icons.info_outline),
-          //   onPressed: () {
-
-          //   },
-          // ),
-          // actions: <Widget>[
-          //   IconButton(
-          //     icon: const Icon(Icons.help_outline),
-          //     onPressed: () {
-
-          //     },
-          //   ),
-          // ],
         ),
         backgroundColor: Colors.white,
         body: _screens[_selectedIndex],
-        bottomNavigationBar: Container(
+        bottomNavigationBar: SizedBox(
           height: 80,
           child: BottomNavigationBar(
             backgroundColor: Colors.white,
@@ -268,9 +254,7 @@ class _LiteScreenState extends State<LiteScreen> {
             ? pulseOxygenData[0]['data'].toString()
             : "N/A";
       });
-    } catch (error) {
-      print('Error fetching data: $error');
-    }
+    } catch (error) {}
   }
 
   String? temperature;
@@ -398,9 +382,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       pulseOxygenRows = buildDataRows(pulseOxygenData);
 
       setState(() {});
-    } catch (error) {
-      print('Error fetching data\n: $error');
-    }
+    } catch (error) {}
   }
 
   Future<List<Map<String, dynamic>>> fetchVitalSignsList(int typeId) async {
@@ -412,23 +394,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return query;
   }
 
-  String formatDateTime(DateTime dateTime) {
-    return DateFormat('MMMM dd, yyyy\nhh:mm:ss a').format(dateTime);
+  String formatDate(DateTime dateTime) {
+    return DateFormat('MM/dd/yyyy').format(dateTime);
   }
 
-  void deleteRecord(int id) async {
-    await Supabase.instance.client.from('vitals').delete().match({'id': id});
-    setState(() {
-      query.removeWhere((element) => element['id'] == id);
-      fetchData();
-    });
+  String formatTime(DateTime dateTime) {
+    return DateFormat('hh:mm:ss a').format(dateTime);
   }
 
   List<DataRow> buildDataRows(List<Map<String, dynamic>> data) {
     return data.map((row) {
       DateTime createdAt = DateTime.parse(row['created_at'].toString());
-      String formattedDate = formatDateTime(createdAt);
-      int id = row['id'];
+      String formattedDate = formatDate(createdAt);
+      String formattedTime = formatTime(createdAt);
 
       int typeId = row['type_id'];
       double value = row['data'].toDouble();
@@ -468,13 +446,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         )),
         DataCell(Text(
-          formattedDate, // Format the date as needed
+          formattedDate,
         )),
-        DataCell(IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () {
-            deleteRecord(id);
-          },
+        DataCell(Text(
+          formattedTime,
         )),
       ]);
     }).toList();
@@ -490,7 +465,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           children: [
             DropdownVitalItem(
               number: '1',
-              title: "Temperature",
+              title: "Temperature (°C)",
               icon: const Icon(Icons.thermostat),
               theme: theme,
               style: columnLabelStyle,
@@ -499,7 +474,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             DropdownVitalItem(
               number: '2',
-              title: "Heart Rate",
+              title: "Heart Rate (BPM)",
               icon: const Icon(Icons.favorite),
               theme: theme,
               style: columnLabelStyle,
@@ -508,7 +483,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             DropdownVitalItem(
               number: '3',
-              title: "Pulse Oxygen",
+              title: "Pulse Oxygen (%)",
               icon: const Icon(Icons.monitor_heart),
               theme: theme,
               style: columnLabelStyle,
@@ -590,9 +565,7 @@ class _FullScreenState extends State<FullScreen> {
             : "0";
         pulseOxygen = pulseOxygenList.isNotEmpty ? pulseOxygenList : [];
       });
-    } catch (error) {
-      print('Error fetching data: $error');
-    }
+    } catch (error) {}
   }
 
   String? temperature;
@@ -604,7 +577,7 @@ class _FullScreenState extends State<FullScreen> {
     List<ChartData> dataList = [];
 
     for (int i = 0; i < data.length; i++) {
-      double pulseOxygen = data[i]['data'];
+      double pulseOxygen = data[i]['data'].toDouble();
       int index = i + 1;
       dataList.add(ChartData(index, pulseOxygen));
     }
@@ -660,26 +633,24 @@ class _FullScreenState extends State<FullScreen> {
                     children: [
                       Column(
                         children: [
-                          Container(
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.monitor_heart,
-                                  color: Colors.green,
-                                  size: 30,
+                          const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.monitor_heart,
+                                color: Colors.green,
+                                size: 30,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Pulse Oxygen',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Pulse Oxygen',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                           Expanded(
                             child: SfCartesianChart(
@@ -820,13 +791,13 @@ class VitalSignItem extends StatelessWidget {
           convertedValue <= 100 &&
           title == "Pulse Oxygen:") {
         textColor = Colors.green;
-      } else if (convertedValue < 95 && title == "Pulse Oxygen:") {
+      } else if (convertedValue > 95 &&
+          convertedValue <= 1 &&
+          title == "Pulse Oxygen:") {
         textColor = Colors.red;
-      } else {
-        textColor = Colors.black;
       }
     } else {
-      textColor = Colors.black; // Handle the case when conversion fails
+      textColor = Colors.black;
     }
 
     return Container(
@@ -838,7 +809,7 @@ class VitalSignItem extends StatelessWidget {
             Icon(
               icon,
               size: 24.0,
-              color: color, // Use the assigned color
+              color: color,
             ),
             const SizedBox(width: 8.0),
             Text(
@@ -908,7 +879,7 @@ class VitalSignItemPlaceholder extends StatelessWidget {
             Icon(
               icon,
               size: 24.0,
-              color: color, // Use the assigned color
+              color: color,
             ),
             const SizedBox(width: 8.0),
             Text(
@@ -999,16 +970,9 @@ class DropdownVitalItem extends StatelessWidget {
                   child: DataTable(
                     columnSpacing: 20,
                     columns: [
-                      DataColumn(
-                          label: Text(
-                              (number == "1")
-                                  ? "Value (°C)"
-                                  : (number == "2")
-                                      ? "Value (BPM)"
-                                      : "Value (%)",
-                              style: style)),
-                      DataColumn(label: Text('Recorded', style: style)),
-                      DataColumn(label: Text('Action', style: style)),
+                      DataColumn(label: Text("Value", style: style)),
+                      DataColumn(label: Text('Date', style: style)),
+                      DataColumn(label: Text('Time', style: style)),
                     ],
                     rows: rows,
                   ),
@@ -1042,90 +1006,88 @@ class TemperatureGaugeItem extends StatelessWidget {
     } else if (value >= 38.0 && value <= 46.5) {
       generalColor = Colors.red;
     }
-    return Container(
-      child: SfRadialGauge(
-        axes: <RadialAxis>[
-          RadialAxis(
-            showLabels: false,
-            showTicks: false,
-            radiusFactor: 0.9,
-            minimum: 13.7,
-            maximum: 46.5,
-            ranges: <GaugeRange>[
-              GaugeRange(
-                startValue: 13.7,
-                endValue: 36.0,
-                color: Colors.orange,
-              ),
-              GaugeRange(
-                startValue: 36.0,
-                endValue: 38.0,
-                color: Colors.green,
-              ),
-              GaugeRange(
-                startValue: 38.0,
-                endValue: 46.5,
-                color: Colors.red,
-              ),
-            ],
-            axisLineStyle:
-                const AxisLineStyle(cornerStyle: gauges.CornerStyle.bothCurve),
-            pointers: <GaugePointer>[
-              NeedlePointer(
-                value: value,
-                needleStartWidth: 1,
-                needleEndWidth: 5,
-                needleLength: 0,
-                knobStyle: KnobStyle(knobRadius: 0.05, color: generalColor),
-              ),
-              MarkerPointer(
-                value: value,
-                markerHeight: 10,
-                markerWidth: 10,
-                elevation: 4,
-                markerOffset: -3,
-                color: Colors.black54,
-                enableAnimation: true,
-              ),
-            ],
-            annotations: <GaugeAnnotation>[
-              GaugeAnnotation(
-                widget: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Icon(Icons.thermostat, size: 20, color: Colors.blue),
-                    const SizedBox(width: 4),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "$value",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: generalColor,
-                              fontWeight: FontWeight.bold,
-                            ),
+    return SfRadialGauge(
+      axes: <RadialAxis>[
+        RadialAxis(
+          showLabels: false,
+          showTicks: false,
+          radiusFactor: 0.9,
+          minimum: 13.7,
+          maximum: 46.5,
+          ranges: <GaugeRange>[
+            GaugeRange(
+              startValue: 13.7,
+              endValue: 36.0,
+              color: Colors.orange,
+            ),
+            GaugeRange(
+              startValue: 36.0,
+              endValue: 38.0,
+              color: Colors.green,
+            ),
+            GaugeRange(
+              startValue: 38.0,
+              endValue: 46.5,
+              color: Colors.red,
+            ),
+          ],
+          axisLineStyle:
+              const AxisLineStyle(cornerStyle: gauges.CornerStyle.bothCurve),
+          pointers: <GaugePointer>[
+            NeedlePointer(
+              value: value,
+              needleStartWidth: 1,
+              needleEndWidth: 5,
+              needleLength: 0,
+              knobStyle: KnobStyle(knobRadius: 0.05, color: generalColor),
+            ),
+            MarkerPointer(
+              value: value,
+              markerHeight: 10,
+              markerWidth: 10,
+              elevation: 4,
+              markerOffset: -3,
+              color: Colors.black54,
+              enableAnimation: true,
+            ),
+          ],
+          annotations: <GaugeAnnotation>[
+            GaugeAnnotation(
+              widget: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Icon(Icons.thermostat, size: 20, color: Colors.blue),
+                  const SizedBox(width: 4),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "$value",
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: generalColor,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const TextSpan(
-                            text: " °C",
-                            style: TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        ),
+                        const TextSpan(
+                          text: " °C",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                positionFactor: 0.5,
-                angle: 90,
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
-      ),
+              positionFactor: 0.5,
+              angle: 90,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -1149,90 +1111,88 @@ class HeartRateGaugeItem extends StatelessWidget {
     } else if (value >= 101 && value <= 120) {
       generalColor = Colors.red;
     }
-    return Container(
-      child: SfRadialGauge(
-        axes: <RadialAxis>[
-          RadialAxis(
-            showLabels: false,
-            showTicks: false,
-            radiusFactor: 0.9,
-            minimum: 26,
-            maximum: 120,
-            ranges: <GaugeRange>[
-              GaugeRange(
-                startValue: 26,
-                endValue: 60,
-                color: Colors.orange,
-              ),
-              GaugeRange(
-                startValue: 60,
-                endValue: 100,
-                color: Colors.green,
-              ),
-              GaugeRange(
-                startValue: 100,
-                endValue: 120,
-                color: Colors.red,
-              ),
-            ],
-            axisLineStyle:
-                const AxisLineStyle(cornerStyle: gauges.CornerStyle.bothCurve),
-            pointers: <GaugePointer>[
-              NeedlePointer(
-                value: value,
-                needleStartWidth: 1,
-                needleEndWidth: 5,
-                needleLength: 0,
-                knobStyle: KnobStyle(knobRadius: 0.05, color: generalColor),
-              ),
-              MarkerPointer(
-                value: value,
-                markerHeight: 10,
-                markerWidth: 10,
-                elevation: 4,
-                markerOffset: -3,
-                color: Colors.black54,
-                enableAnimation: true,
-              ),
-            ],
-            annotations: <GaugeAnnotation>[
-              GaugeAnnotation(
-                widget: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Icon(Icons.favorite, size: 20, color: Colors.red),
-                    const SizedBox(width: 4),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "$value",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: generalColor,
-                              fontWeight: FontWeight.bold,
-                            ),
+    return SfRadialGauge(
+      axes: <RadialAxis>[
+        RadialAxis(
+          showLabels: false,
+          showTicks: false,
+          radiusFactor: 0.9,
+          minimum: 26,
+          maximum: 120,
+          ranges: <GaugeRange>[
+            GaugeRange(
+              startValue: 26,
+              endValue: 60,
+              color: Colors.orange,
+            ),
+            GaugeRange(
+              startValue: 60,
+              endValue: 100,
+              color: Colors.green,
+            ),
+            GaugeRange(
+              startValue: 100,
+              endValue: 120,
+              color: Colors.red,
+            ),
+          ],
+          axisLineStyle:
+              const AxisLineStyle(cornerStyle: gauges.CornerStyle.bothCurve),
+          pointers: <GaugePointer>[
+            NeedlePointer(
+              value: value,
+              needleStartWidth: 1,
+              needleEndWidth: 5,
+              needleLength: 0,
+              knobStyle: KnobStyle(knobRadius: 0.05, color: generalColor),
+            ),
+            MarkerPointer(
+              value: value,
+              markerHeight: 10,
+              markerWidth: 10,
+              elevation: 4,
+              markerOffset: -3,
+              color: Colors.black54,
+              enableAnimation: true,
+            ),
+          ],
+          annotations: <GaugeAnnotation>[
+            GaugeAnnotation(
+              widget: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Icon(Icons.favorite, size: 20, color: Colors.red),
+                  const SizedBox(width: 4),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "$value",
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: generalColor,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const TextSpan(
-                            text: " BPM",
-                            style: TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        ),
+                        const TextSpan(
+                          text: " BPM",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                positionFactor: 0.5,
-                angle: 90,
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
-      ),
+              positionFactor: 0.5,
+              angle: 90,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -1375,7 +1335,7 @@ class VitalStatusChooser extends StatelessWidget {
           icon: Icons.monitor_heart,
           iconColor: Colors.green,
           text: "You got a normal pulse oxygen. Keep it up.");
-    } else if (value < 95 && value >= 90 && type == "Pulse Oxygen") {
+    } else if (value < 95 && value >= 1 && type == "Pulse Oxygen") {
       return const VitalStatusItem(
           backgroundColor: Color(0xffE6CCCF),
           borderColor: Color(0xffD6BCBF),
