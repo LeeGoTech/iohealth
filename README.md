@@ -1,6 +1,6 @@
 # IoHealth
 
-## Mobile Application with IoT integration.
+Mobile Application with IoT integration.
 
 ### Microcontroller Used:
 - NodeMCU V3 ESP8266
