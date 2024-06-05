@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const NavBar()),
       );
@@ -215,7 +215,7 @@ class _LiteScreenState extends State<LiteScreen> {
     super.initState();
     fetchData();
 
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       fetchData();
     });
   }
@@ -363,25 +363,40 @@ class _HistoryScreenState extends State<HistoryScreen> {
   late List<DataRow> heartRateRows = [];
   late List<DataRow> pulseOxygenRows = [];
   late List<Map<String, dynamic>> query = [];
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     fetchData();
+
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      fetchData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   Future<void> fetchData() async {
     try {
       final temperatureData = await fetchVitalSignsList(1);
-      temperatureRows = buildDataRows(temperatureData);
 
       final heartRateData = await fetchVitalSignsList(2);
-      heartRateRows = buildDataRows(heartRateData);
 
       final pulseOxygenData = await fetchVitalSignsList(3);
-      pulseOxygenRows = buildDataRows(pulseOxygenData);
 
-      setState(() {});
+      setState(() {
+        temperatureRows =
+            temperatureData.isNotEmpty ? buildDataRows(temperatureData) : [];
+        heartRateRows =
+            heartRateData.isNotEmpty ? buildDataRows(heartRateData) : [];
+        pulseOxygenRows =
+            pulseOxygenData.isNotEmpty ? buildDataRows(pulseOxygenData) : [];
+      });
     } catch (error) {}
   }
 
@@ -389,7 +404,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final query = Supabase.instance.client
         .from('vitals')
         .select('id, data, type_id, created_at')
-        .eq('type_id', typeId);
+        .eq('type_id', typeId)
+        .order('created_at', ascending: false);
 
     return query;
   }
@@ -513,7 +529,7 @@ class _FullScreenState extends State<FullScreen> {
     super.initState();
     fetchData();
 
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       fetchData();
     });
   }
