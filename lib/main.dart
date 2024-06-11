@@ -19,9 +19,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: 'https://plybudwyjdseroquyubv.supabase.co',
+    url: 'INSERT YOUR SUPABASE URL HERE',
     anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBseWJ1ZHd5amRzZXJvcXV5dWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0MTg2MzgsImV4cCI6MjAzMDk5NDYzOH0.W3cVtOeUn7vJGgmsUEQOLdo4EcAM8NFK2eavDQl_A60',
+        'INSERT YOUR SUPABASE ANON KEY HERE',
   );
   runApp(const IoHealth());
 }
